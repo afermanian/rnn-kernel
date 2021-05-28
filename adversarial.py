@@ -33,7 +33,7 @@ class PGDL2(object):
             if deltas.grad is not None:
                 deltas.grad.zero_()
             preds = self.model(ims + deltas)
-            loss = -self.model.loss(preds, labels)
+            loss = -torch.nn.CrossEntropyLoss()(preds, labels)
             loss.backward()
 
             # normalized (constant step-length) gradient step

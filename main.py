@@ -15,23 +15,39 @@ ex = Experiment()
 def my_config():
     non_linearity = 'tanh'
     batch_size = 64
-    grid_lambda = None
+    reg_lambda = None
     hidden_channels = 8
     n_epoch = 10
-    n_epoch_lambda = None
     order = 0
-    save_dir = None
     length = None
     seed = 17
-    n_val = 100
     n_train = 100
     n_test = 100
     lr = None
+    save_dir = ''
 
 
 @ex.main
-def my_main(_run, non_linearity, batch_size, grid_lambda, hidden_channels, n_epoch, order, save_dir, length, seed,
-            n_epoch_lambda, n_train, n_val, n_test, lr):
+def my_main(_run: Experiment, non_linearity: str, batch_size: int, reg_lambda: float, hidden_channels: int,
+            n_epoch: int, order: int, length: int, seed: int, n_train: int, n_test: int,
+            lr: float, save_dir: str):
+    """Main function that executes a run. The results of the run are stored in the files config.json and metrics.json.
+
+    :param _run: run ID
+    :param non_linearity: activation function of the RNN must be 'tanh' or 'sigmoid'
+    :param batch_size: batch size
+    :param reg_lambda: regularization parameter, can be None or float. If None, no regularization is applied.
+    :param hidden_channels: size of the hidden state of the RNN
+    :param n_epoch: number of training epochs
+    :param order: truncation order for computing the norm in the RKHS as a N-step Taylor expansion
+    :param length: number of sampling points of the spirals
+    :param seed: random seed
+    :param n_train: number of training samples
+    :param n_test: number of test samples
+    :param lr: learning rate
+    :param save_dir: path to directory where the experiment is saved
+    :return: Trained RNN.
+    """
     if torch.cuda.is_available():
         dev = "cuda"
     else:
@@ -39,24 +55,13 @@ def my_main(_run, non_linearity, batch_size, grid_lambda, hidden_channels, n_epo
     device = torch.device(dev)
     ex_save_dir = save_dir + '/{}'.format(_run._id)
 
-    train_dataloader, val_dataloader, test_dataloader, output_channels = get_data(
-        length, batch_size, random_seed=seed, n_train=n_train, n_test=n_test, n_val=n_val)
+    train_dataloader, test_dataloader, output_channels = get_data(
+        length, batch_size, random_seed=seed, n_train=n_train, n_test=n_test)
 
     input_channels = next(iter(train_dataloader))[0].shape[2] # get last dimension of one batch
     _run.log_scalar('input_channels', int(input_channels))
     _run.log_scalar('output_channels', int(output_channels))
 
-    if grid_lambda is None:
-        reg_lambda = None
-    elif len(grid_lambda) == 1:
-        reg_lambda = grid_lambda[0]
-    else:
-        if n_epoch_lambda is None:
-            n_epoch_lambda = n_epoch
-        reg_lambda, metrics_lambda = train_rnn_validation_set(
-            train_dataloader, val_dataloader, input_channels, hidden_channels, output_channels,
-            grid_lambda=grid_lambda, non_linearity=non_linearity, n_epoch=n_epoch_lambda, device=device, order=order)
-        torch.save({'cv_accuracy': metrics_lambda}, ex_save_dir + '/cv_acc_info.pt')
 
     _run.log_scalar('reg_lambda', reg_lambda)
     model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity, device=device)

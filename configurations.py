@@ -3,7 +3,7 @@ configs = {
         'non_linearity': ['tanh'],
         'batch_size': [32],
         'n_epoch': [10],
-        'grid_lambda': [None, [0.1]],
+        'reg_lambda': [None, 0.1],
         'order': [3],
         'n_train': [50]
     },
@@ -13,8 +13,7 @@ configs = {
         'batch_size': [64],
         'hidden_channels': [32],
         'n_epoch': [200],
-        'grid_lambda': [None, [0.1]],
-        'n_val': [1000],
+        'reg_lambda': [None, 0.1],
         'length': [100],
         'n_train': [50] * 20,
         'n_test': [1000],
