@@ -62,8 +62,6 @@ def my_main(_run: Experiment, non_linearity: str, batch_size: int, reg_lambda: f
     _run.log_scalar('input_channels', int(input_channels))
     _run.log_scalar('output_channels', int(output_channels))
 
-
-    _run.log_scalar('reg_lambda', reg_lambda)
     model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity, device=device)
 
     print('--------------------------------')

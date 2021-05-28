@@ -4,17 +4,10 @@ import pandas as pd
 from generate_data import generate_spirals
 import torch
 from train_models import evaluate_model
-import matplotlib.pyplot as plt
-import seaborn as sns
 
-from matplotlib import rc
-rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-rc('text', usetex=True)
-
-sns.set()
 
 experiment = 'spirals_penalization'
-run_nums ='all'
+run_nums = 'all'
 
 df = get_ex_results(experiment, run_nums)
 print(df.head())
@@ -68,16 +61,8 @@ for epsilon in epsilon_grid:
         df_adv = df_adv.append({'epsilon': epsilon, 'acc_test_adv': acc_test_2, 'model': 'Penalized RNN'},
                                ignore_index=True)
 
-
 print(df_adv.head())
+df_adv['acc_test_adv'] = df_adv['acc_test_adv'].astype(float)
 df_adv.to_csv('results/spirals_adversarial.csv')
 
-df_adv['acc_test_adv'] = df_adv['acc_test_adv'].astype(float)
-fig, ax = plt.subplots()
-sns.lineplot('epsilon', 'acc_test_adv', hue='model', data=df_adv, palette='colorblind', style='model', markers=True)
-ax.legend().set_title('')
-plt.xlabel(r'$\varepsilon$')
-plt.ylabel(r'Adversarial accuracy')
-plt.savefig('figures/spirals_adversarial.pdf')
-plt.show()
 
