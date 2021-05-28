@@ -2,13 +2,16 @@ import torch
 
 
 class RNNModel(torch.nn.Module):
-    def __init__(self, input_channels, hidden_channels, output_channels, non_linearity='tanh'):
+    def __init__(self, input_channels, hidden_channels, output_channels, non_linearity='tanh',
+                 device=torch.device("cpu")):
         super(RNNModel, self).__init__()
         self.name = 'RNN'
 
         self.hidden_channels = hidden_channels
         self.input_channels = input_channels
         self.output_channels = output_channels
+
+        self.device = device
 
         self.non_linearity = non_linearity
 
@@ -20,7 +23,7 @@ class RNNModel(torch.nn.Module):
         self.bias = self.rnn_cell.weight_ih.bias + self.rnn_cell.weight_hh.bias
 
     def initialize_rnn(self, batch_size):
-        return torch.zeros((batch_size, self.hidden_channels))
+        return torch.zeros((batch_size, self.hidden_channels,), device=self.device)
 
     def forward(self, inputs):
         # inputs is of shape (batch_size, timesteps, input_channels)

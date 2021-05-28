@@ -50,7 +50,7 @@ def train_rnn_validation_set(train_dataloader, val_dataloader, input_channels, h
         print('--------------------------------')
         print(f'REGULARIZATION PARAM {reg_lambda}')
         print('--------------------------------')
-        model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity)
+        model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity, device=device)
         model.to(device)
         train_penalized(model, train_dataloader, n_epoch=n_epoch, verbose=True, reg_lambda=reg_lambda, order=order,
                         device=device, lr=lr)
