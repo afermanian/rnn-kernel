@@ -59,7 +59,7 @@ def my_main(_run, non_linearity, batch_size, grid_lambda, hidden_channels, n_epo
         torch.save({'cv_accuracy': metrics_lambda}, ex_save_dir + '/cv_acc_info.pt')
 
     _run.log_scalar('reg_lambda', reg_lambda)
-    model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity, device=device)
+    model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity)
 
     print('--------------------------------')
     print(f'FINAL MODEL')

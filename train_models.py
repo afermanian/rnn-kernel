@@ -17,13 +17,15 @@ def train_penalized(model, train_dataloader, n_epoch=30, save_dir=None, verbose=
     if save_dir is not None:
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
+
+    loss = torch.nn.CrossEntropyLoss()
     for epoch in range(n_epoch):
         for X_batch, y_batch in train_dataloader:
             optimizer.zero_grad()
             X_batch, y_batch = X_batch.to(device), y_batch.to(device)
 
             y_pred = model.forward(X_batch)
-            criterion = model.loss(y_pred, y_batch)
+            criterion = loss(y_pred, y_batch)
             if reg_lambda is not None:
                 criterion += reg_lambda * get_kernel_penalization(model, order, device=device)
             criterion.backward()
@@ -48,7 +50,7 @@ def train_rnn_validation_set(train_dataloader, val_dataloader, input_channels, h
         print('--------------------------------')
         print(f'REGULARIZATION PARAM {reg_lambda}')
         print('--------------------------------')
-        model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity, device=device)
+        model = RNNModel(input_channels, hidden_channels, output_channels, non_linearity=non_linearity)
         model.to(device)
         train_penalized(model, train_dataloader, n_epoch=n_epoch, verbose=True, reg_lambda=reg_lambda, order=order,
                         device=device, lr=lr)
@@ -81,7 +83,7 @@ def get_kernel_penalization(model, order, device=torch.device('cpu')):
         Norm in the RKHS of the RNN, averages over all initial values in X_0 and each class
             (there is one function per class)
     """
-    hidden_state = torch.cat([model.hidden_state_0, torch.zeros(model.input_channels, device=device)])
+    hidden_state = torch.zeros(model.hidden_channels + model.input_channels, device=device)
     model_jacobian_vectorized = euler_scheme.iterated_jacobian(model, order, hidden_state, model.non_linearity,
                                                                is_sparse=False, device=device)
 
