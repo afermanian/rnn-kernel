@@ -17,6 +17,7 @@ class RNNModel(torch.nn.Module):
 
         self.readout = torch.nn.Linear(hidden_channels, output_channels)
         self.rnn_cell = RNNCell(input_channels, hidden_channels, non_linearity)
+        self.rnn_cell.to(device)
 
         self.weight_ih = self.rnn_cell.weight_ih.weight
         self.weight_hh = self.rnn_cell.weight_hh.weight
