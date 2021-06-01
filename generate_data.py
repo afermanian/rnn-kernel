@@ -29,7 +29,6 @@ def get_data(length, batch_size, n_train=1000, n_test=1000, random_seed=None):
     if random_seed:
         torch.manual_seed(random_seed)
 
-    # The noise is added only on the test set!
     X_train, y_train = generate_spirals(n_train, length=length)
     X_test, y_test = generate_spirals(n_test, length=length)
 
@@ -40,6 +39,3 @@ def get_data(length, batch_size, n_train=1000, n_test=1000, random_seed=None):
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size)
 
     return train_dataloader, test_dataloader, 2
-
-
-
