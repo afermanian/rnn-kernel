@@ -19,11 +19,9 @@ def derivative_tanh(m, x):
 
 def sigmoid(x):
     return 0.5 * (1 + np.tanh(0.5 * x))
-    #return 1 / (1 + np.exp(-x))
 
 
 def derivative_sigmoid(m, x):
-    # see https://eecs.ceas.uc.edu/~minaiaa/papers/minai_sigmoids_NN93.pdf
     return derivative_tanh(m, x / 2) / (2 ** (m+1))
 
 
@@ -178,14 +176,14 @@ def tensordot(A, B, contraction, derivation_order, is_sparse, device=torch.devic
         return [zeroth_order_result] + plus(first_tensordot, second_tensordot)
 
 
-def iterated_jacobian(model, order, evaluation_point, non_linearity, is_sparse=False, device=torch.device('cpu')):
+def iterated_jacobian(model, order, evaluation_point, is_sparse=False, device=torch.device('cpu')):
     if order >= 5 and not is_sparse:
         raise ValueError('Cannot call non sparse mode with an order greater than 4.')
     if is_sparse:
         warnings.warn('Computation with sparse iterated jacobians is not stabilized. Use at your own risk.')
     if len(evaluation_point.shape) > 1:
         raise ValueError('iterated_jacobian is not batched.')
-    if non_linearity not in ['tanh', 'sigmoid']:
+    if model.non_linearity not in ['tanh', 'sigmoid']:
         raise ValueError('iterated_jacobian only works for tanh nonlinearity.')
 
     d = model.input_channels
@@ -200,7 +198,7 @@ def iterated_jacobian(model, order, evaluation_point, non_linearity, is_sparse=F
         C = C.detach().numpy()
         b = b.detach().numpy()
 
-    F = sparse_jacobians(C, b, evaluation_point, e, d, order-1, is_sparse, non_linearity, device=device)
+    F = sparse_jacobians(C, b, evaluation_point, e, d, order-1, is_sparse, model.non_linearity, device=device)
     if is_sparse:
         results = [torch.Tensor(F[0], device=device)]
     else:
@@ -215,10 +213,10 @@ def iterated_jacobian(model, order, evaluation_point, non_linearity, is_sparse=F
     return results
 
 
-def integrate_cde(
+def model_approximation(
         model: Callable[[torch.Tensor],
                         torch.Tensor],
-        truncation_order: int, control: torch.Tensor, initial_value: torch.Tensor, non_linearity: str,
+        truncation_order: int, control: torch.Tensor, initial_value: torch.Tensor,
         is_sparse=False) -> torch.Tensor:
     """Computes the approximation of the solution of a controlled differential equation (CDE) dh = F(h)dX,
     where F is a tensor field and X is a  control.
@@ -238,12 +236,14 @@ def integrate_cde(
     :return: an approximation of the value of the solution of the CDE, a tensor of shape (batch_size, $e$)
     """
     result = initial_value.clone().detach()
+    all_results = []
     signature = signatory.signature(control.unsqueeze(0), truncation_order)
 
-    jacobians = iterated_jacobian(model, truncation_order, initial_value, non_linearity, is_sparse=is_sparse)
+    jacobians = iterated_jacobian(model, truncation_order, initial_value, is_sparse=is_sparse)
 
     for k in range(truncation_order):
         reshaped_jacobian = jacobians[k].reshape((initial_value.shape[0], -1))
         signature_tensor = signatory.extract_signature_term(signature, control.shape[1], k + 1)
         result += torch.sum(reshaped_jacobian * signature_tensor, dim=-1)
-    return result
+        all_results.append(result.clone())
+    return result, torch.stack(all_results)
