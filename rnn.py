@@ -22,11 +22,13 @@ class RNNModel(torch.nn.Module):
         self.readout = torch.nn.Linear(hidden_channels, output_channels)
         if non_linearity in ['tanh', 'relu']:
             self.rnn_cell = torch.nn.RNNCell(input_channels, hidden_channels, non_linearity)
+            self.rnn_cell.to(device)
             self.weight_ih = self.rnn_cell.weight_ih
             self.weight_hh = self.rnn_cell.weight_hh
             self.bias = self.rnn_cell.bias_ih + self.rnn_cell.bias_hh
         else:
             self.rnn_cell = RNNCell(input_channels, hidden_channels, non_linearity)
+            self.rnn_cell.to(device)
             self.weight_ih = self.rnn_cell.weight_ih.weight
             self.weight_hh = self.rnn_cell.weight_hh.weight
             self.bias = self.rnn_cell.weight_ih.bias + self.rnn_cell.weight_hh.bias
@@ -55,8 +57,8 @@ class RNNModel(torch.nn.Module):
                 (there is one function per class)
         """
         hidden_state = torch.zeros(self.hidden_channels + self.input_channels, device=device)
-        model_jacobian_vectorized = taylor_expansion.iterated_jacobian(self, order, hidden_state,
-                                                                is_sparse=False, device=device)
+        model_jacobian_vectorized = taylor_expansion.iterated_jacobian(self, order, hidden_state, is_sparse=False,
+                                                                       device=device)
 
         # Initialize norm for order 0
         norm = self.readout(hidden_state[:self.hidden_channels]) ** 2
