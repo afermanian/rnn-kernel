@@ -37,7 +37,6 @@ configs_adversarial_exp = {
         'n_train': [50] * 20,
         'n_test': [1000],
         'order': [3],
-        'seed': [None],
         'lr': [0.1],
         'adversarial_epsilon': [[0., 0.2, 0.4, 0.6, 0.8, 1.0]],
         'adversarial_steps': [50]

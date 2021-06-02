@@ -98,13 +98,15 @@ def get_ex_results(experiment_dir: str, run_nums: List[str] = None):
     return df
 
 
-def get_RNN_model(experiment: Dict) -> torch.nn.Module:
+def get_RNN_model(experiment: Dict, epoch: int = None) -> torch.nn.Module:
     """Extract a trained RNNModel
 
     :param experiment: a row from the dataframe given by get_ex_results
     :return: rnn.RNNModel
     """
-    checkpoint = torch.load(os.path.join(experiment['save_dir'], 'rnn_model_{}.pt'.format(experiment['n_epoch']-1)),
+    if epoch is None:
+        epoch = experiment['n_epoch'] - 1
+    checkpoint = torch.load(os.path.join(experiment['save_dir'], 'rnn_model_{}.pt'.format(epoch)),
                             map_location=torch.device('cpu'))
     model = rnn.RNNModel(int(experiment['input_channels']), experiment['hidden_channels'],
                      int(experiment['output_channels']), experiment['non_linearity'])

@@ -32,19 +32,16 @@ def generate_spirals(n_samples: int, length: int = 100):
     return X, y
 
 
-def get_data(length: int, batch_size: int, n_train: int = 1000, n_test: int = 1000, random_seed: int = None):
+def get_data(length: int, batch_size: int, n_train: int = 1000, n_test: int = 1000):
     """Generate train and test dataloaders for the spirals dataset.
 
     :param length: length of the time sampling of the spirals
     :param batch_size: batch size
     :param n_train: number of training samples
     :param n_test: number of test samples
-    :param random_seed: random seed. If None the seed is not fixed
     :return: train_dataloader, test_dataloader, output_channels. The train and test dataloader are of type
     torch.utils.dataset.DataLoader, output_channels is the number of classes, equal to 2 for the spirals.
     """
-    if random_seed:
-        torch.manual_seed(random_seed)
 
     X_train, y_train = generate_spirals(n_train, length=length)
     X_test, y_test = generate_spirals(n_test, length=length)

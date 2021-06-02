@@ -25,7 +25,6 @@ def my_config():
     n_epoch = 10
     order = 0
     length = 100
-    seed = 17
     n_train = 100
     n_test = 100
     lr = None
@@ -36,7 +35,7 @@ def my_config():
 
 @ex.main
 def train_model(_run: sacred.Experiment, non_linearity: str, batch_size: int, reg_lambda: float, hidden_channels: int,
-                n_epoch: int, order: int, length: int, seed: int, n_train: int, n_test: int, lr: float, save_dir: str) \
+                n_epoch: int, order: int, length: int, n_train: int, n_test: int, lr: float, save_dir: str) \
         -> torch.nn.Module:
     """Main function of the adversarial experiment that generates spirals and train a RNN, with or without penalization.
     The results of the run are stored in the files config.json and metrics.json.
@@ -49,7 +48,6 @@ def train_model(_run: sacred.Experiment, non_linearity: str, batch_size: int, re
     :param n_epoch: number of training epochs
     :param order: truncation order for computing the norm in the RKHS as a N-step Taylor expansion
     :param length: number of sampling points of the spirals
-    :param seed: random seed
     :param n_train: number of training samples
     :param n_test: number of test samples
     :param lr: learning rate
@@ -64,7 +62,7 @@ def train_model(_run: sacred.Experiment, non_linearity: str, batch_size: int, re
     ex_save_dir = os.path.join(save_dir, _run._id)
 
     train_dataloader, test_dataloader, output_channels = generate_data.get_data(
-        length, batch_size, random_seed=seed, n_train=n_train, n_test=n_test)
+        length, batch_size, n_train=n_train, n_test=n_test)
 
     input_channels = next(iter(train_dataloader))[0].shape[2] # get last dimension of one batch
     _run.log_scalar('input_channels', input_channels)
@@ -132,7 +130,7 @@ def compute_norms(experiment_dir: str, run_nums: List[str] = None):
         norm_kernel = []
         norm_frobenius = []
         for i in range(n_epoch):
-            model = utils.get_RNN_model(exp)
+            model = utils.get_RNN_model(exp, i)
             norm_kernel += [float(torch.norm(model.get_kernel_penalization(3)))]
             norm_frobenius += [float(torch.norm(torch.cat([model.weight_ih, model.weight_hh], 1)))]
         norm_kernel_smoothed = np.convolve(norm_kernel, np.ones(6)/6, mode='same')
@@ -144,5 +142,3 @@ def compute_norms(experiment_dir: str, run_nums: List[str] = None):
     df_norms.loc[df_norms['reg_lambda'] == 0., 'model'] = 'RNN'
     df_norms.loc[df_norms['reg_lambda'] != 0., 'model'] = 'Penalized RNN'
     df_norms.to_csv(os.path.join(experiment_dir, 'training_norms.csv'))
-
-
