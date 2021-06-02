@@ -55,7 +55,7 @@ class RNNModel(torch.nn.Module):
                 (there is one function per class)
         """
         hidden_state = torch.zeros(self.hidden_channels + self.input_channels, device=device)
-        model_jacobian_vectorized = taylor_expansion.iterated_jacobian(self, order, hidden_state, self.non_linearity,
+        model_jacobian_vectorized = taylor_expansion.iterated_jacobian(self, order, hidden_state,
                                                                 is_sparse=False, device=device)
 
         # Initialize norm for order 0

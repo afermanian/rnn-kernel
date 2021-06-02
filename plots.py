@@ -14,7 +14,7 @@ rc('text', usetex=True)
 
 def plot_spirals_adversarial(experiment_dir):
     df_adv = pd.read_csv(os.path.join(experiment_dir, 'adversarial_accuracy.csv'))
-    sns.lineplot(x='epsilon', y='acc_test_adv', hue='reg_lambda', data=df_adv, palette='colorblind', style='reg_lambda', markers=True)
+    sns.lineplot(x='epsilon', y='acc_test_adv', hue='reg\_lambda', data=df_adv, palette='colorblind', style='reg\_lambda', markers=True)
     plt.xlabel(r'$\varepsilon$')
     plt.ylabel(r'Adversarial accuracy')
     plt.savefig(os.path.join(experiment_dir, 'spirals_adversarial.pdf'))
@@ -31,6 +31,6 @@ def plot_taylor_convergence(experiment_dir):
     selection = df[(df['Activation'] == 'sigmoid') & (df['Step N'] == config['order'])]
     sns.scatterplot(x=selection['Weight L2 norm'], y=selection['Error'], palette='colorblind')
     plt.xlabel('Frobenius norm of the weights')
-    plt.ylabel(r'Error for $N=5$')
+    plt.ylabel('Error for $N={}$'.format(config['order']))
     plt.yscale('log')
     plt.savefig(os.path.join(experiment_dir, 'error_norm_weights.pdf'), bbox_inches='tight')

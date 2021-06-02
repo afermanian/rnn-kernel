@@ -95,6 +95,6 @@ def compute_adversarial_accuracy(experiment_dir, run_nums=None):
             test_dataset = torch.utils.data.TensorDataset(X_test, y_test)
             test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=exp['batch_size'])
             acc_test = utils.evaluate_model(model, test_dataloader)
-            df_adv = df_adv.append({'epsilon': epsilon, 'acc_test_adv': float(acc_test), 'reg_lambda': r'$\lambda$: ' + str(exp['reg_lambda'])}, ignore_index=True)
+            df_adv = df_adv.append({'epsilon': epsilon, 'acc_test_adv': float(acc_test), 'reg\_lambda': r'$\lambda$: ' + str(exp['reg_lambda'])}, ignore_index=True)
 
     df_adv.to_csv(os.path.join(experiment_dir, 'adversarial_accuracy.csv'))
