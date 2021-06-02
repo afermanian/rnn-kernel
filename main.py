@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 import pickle
@@ -37,7 +38,9 @@ def main(taylor_exp: str, adversarial_exp: str):
         taylor_experiment.compute_taylor_convergence(save_dir, config)
 
         print('Plotting results')
+        logging.disable('WARNING')  # Disable matplotlib warnings
         plots.plot_taylor_convergence(save_dir)
+        logging.disable(logging.NOTSET)  # Re-enable warnings
 
     if adversarial_exp is not None:
         print('Running the adversarial accuracy experiment')
@@ -58,8 +61,10 @@ def main(taylor_exp: str, adversarial_exp: str):
         adversarial_experiment.compute_norms(save_dir, run_nums=['1', '2'])
 
         print('Plotting results')
+        logging.disable('WARNING')  # Disable matplotlib warnings
         plots.plot_spirals_adversarial(save_dir)
         plots.plot_spirals_training_norms(save_dir)
+        logging.disable(logging.NOTSET)  # Re-enable warnings
 
 
 if __name__ == '__main__':

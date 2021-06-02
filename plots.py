@@ -39,7 +39,7 @@ def plot_spirals_training_norms(experiment_dir: str):
     df_norms = pd.read_csv(os.path.join(experiment_dir, 'training_norms.csv'))
     plt.figure()
     sns.lineplot(x='epoch', y='norm_frobenius', hue='model', palette='colorblind', style='model',
-                 data=df_norms, markers=True)
+                 data=df_norms)
     plt.legend()
     plt.xlabel('Epoch')
     plt.ylabel(r'Frobenius norm of the weights')
@@ -47,7 +47,7 @@ def plot_spirals_training_norms(experiment_dir: str):
 
     plt.figure()
     sns.lineplot(x='epoch', y='norm_kernel_smoothed', hue='model', palette='colorblind', style='model',
-                 data=df_norms, markers=True)
+                 data=df_norms)
     plt.legend()
     plt.yscale('log')
     plt.xlabel('Epoch')
