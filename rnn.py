@@ -20,6 +20,9 @@ class RNNModel(torch.nn.Module):
         self.non_linearity = non_linearity
 
         self.readout = torch.nn.Linear(hidden_channels, output_channels)
+
+        self.hidden_state_0 = torch.nn.Parameter(torch.zeros(self.hidden_channels, requires_grad=False, device=device))
+
         if non_linearity in ['tanh', 'relu']:
             self.rnn_cell = torch.nn.RNNCell(input_channels, hidden_channels, non_linearity)
             self.rnn_cell.to(device)
@@ -35,7 +38,7 @@ class RNNModel(torch.nn.Module):
         self.rnn_cell.to(device)
 
     def initialize_rnn(self, batch_size):
-        return torch.zeros((batch_size, self.hidden_channels,), device=self.device)
+        return torch.cat([self.hidden_state_0.unsqueeze(0)] * batch_size)
 
     def forward(self, inputs):
         # inputs is of shape (batch_size, timesteps, input_channels)
@@ -56,7 +59,8 @@ class RNNModel(torch.nn.Module):
             Norm in the RKHS of the RNN, averages over all initial values in X_0 and each class
                 (there is one function per class)
         """
-        hidden_state = torch.zeros(self.hidden_channels + self.input_channels, device=device)
+        # hidden_state = torch.zeros(self.hidden_channels + self.input_channels, device=device)
+        hidden_state = torch.cat([self.hidden_state_0, torch.zeros(self.input_channels, device=device)])
         model_jacobian_vectorized = taylor_expansion.iterated_jacobian(self, order, hidden_state, is_sparse=False,
                                                                        device=device)
 
