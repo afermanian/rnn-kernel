@@ -38,7 +38,7 @@ def main(taylor_exp: str, adversarial_exp: str):
         taylor_experiment.compute_taylor_convergence(save_dir, config)
 
         print('Plotting results')
-        logging.disable('WARNING')  # Disable matplotlib warnings
+        logging.disable(logging.WARNING)  # Disable matplotlib warnings
         plots.plot_taylor_convergence(save_dir)
         logging.disable(logging.NOTSET)  # Re-enable warnings
 
@@ -61,7 +61,7 @@ def main(taylor_exp: str, adversarial_exp: str):
         adversarial_experiment.compute_norms(save_dir, run_nums=['1', '2'])
 
         print('Plotting results')
-        logging.disable('WARNING')  # Disable matplotlib warnings
+        logging.disable(logging.WARNING)  # Disable matplotlib warnings
         plots.plot_spirals_adversarial(save_dir)
         plots.plot_spirals_training_norms(save_dir)
         logging.disable(logging.NOTSET)  # Re-enable warnings

@@ -3,6 +3,7 @@
 ## Requirements
 
 For reproductibility purposes, we advise to install the project in a dedicated virtual environment to make sure the specific requirements are satisfied.
+**Recommended Python version: 3.8.x.**
 
 To install requirements:
 
@@ -10,7 +11,7 @@ To install requirements:
 pip install -r requirements.txt
 ```
 
-In addition, this package requires installing signatory, which is not entirely straightforward. The following command should work on Linux:
+In addition, this package requires installing signatory, which is not entirely straightforward. The following command should work on Linux and Windows:
 
 ```
 pip install signatory==1.2.4.1.7.1 --no-cache-dir --force-reinstall
